@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content=""> {% include favicon.html %}
-    <title>{{page.title}}</title>
+    <title>MPQD: {{page.character}} ({{page.style}})</title>
 
     <!-- Bootstrap core CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
@@ -35,15 +35,135 @@
         </div>
     </nav>
 
+    <!-- TODO put my stuff in -->
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-3 col-md-2 sidebar">
                 {% include sidebar-nav.html character=page.character style=page.style %}
             </div>
-            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
- 
-                {{content}}
+            
+            <!-- defines thisPage using the data file characters.json for ease -->
+            {% for aCharacter in site.data.characters %}
+                {% if page.character == aCharacter.name and page.style == aCharacter.style %}
+                    {% assign thisPage = aCharacter %}
+                {% endif %}
+                {% if page.character == aCharacter.awards.name and page.style == aCharacter.awards.style %}
+                    {% assign feeder = aCharacter %}
+                {% endif %}
+            {% endfor %}
+            {% if thisPage.awards.name %}
+                {% for aCharacter in site.data.characters %}
+                    {% if thisPage.awards.name == aCharacter.name and thisPage.awards.style == aCharacter.style %}
+                        {% assign champAwards = aCharacter %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
                 
+            <!-- I'm using a bunch of pixel definitions, not sure how to define things vertically with bootstrap yet -->
+            <style>
+                .mainHeader{
+                    
+                    display: inline-block;
+
+                }
+                .blackTop{
+                    background-color:black;
+                    color:white;
+                    padding: 0px;
+                    
+                }
+                .charName{
+                    color: white;
+                    font-size: 50px;
+                    display: block;
+
+                }
+                .charStyle{
+                    color: lightblue;
+                    font-size: 15px;
+                    display: block;
+                    text-align: right;
+                }
+                .imagebox{
+                    height: 80px;
+                    width: 40px;
+                    display: inline-block;
+                    ;
+                    
+                }
+                .imageBoxImage{
+                    display: block;
+                    padding: 2px 0px;
+                    width: 26px;
+                }
+                .inTextImage{
+                    display: inline-block;
+                    width: 20px;
+                }
+                .starRating{
+                    float: right !important;
+                    padding: 20px;
+
+                }
+                
+
+            
+            </style> 
+        
+            <!-- This is functional, but I am not sure why it work once the navbar disappears -->
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 blackTop" >
+                
+                <div class="imagebox">
+                    {% include mWedge.html color = thisPage.colors.first %}
+                    {% include mWedge.html color = thisPage.colors.second %}
+                    {% if thisPage.colors.third %}
+                        {% include mWedge.html color = thisPage.colors.third %}
+                    {% endif %}
+                </div>
+                
+                <div class="mainHeader">
+                    <h1 class="charName">
+                        {{page.character}}
+                    </h1>
+                    <p class="charStyle">
+                        {{page.style}}
+                    </p>
+                </div>
+                <div class="starRating">
+                    {% for i in (1..thisPage.tier) %}    
+                         <i class='fa fa-star'></i>
+                    {% endfor %}
+                </div>
+                
+
+
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2" style="background-color:rgb(210, 214, 194)">
+                
+                <!-- Create links for feeders and awards. ugly URLs are hidden by listing a permalink in the character page -->
+                
+                {% if feeder %}
+                    {% assign feederURL = "/" | append: feeder.nick | append: "/" %}
+                    <p>{{thisPage.name}} ({{thisPage.style}}) is fed by 
+                        <a href="{{feederURL}}">{{feeder.name}} ({{feeder.style}})</a> (order: {% include sWedge.html color = feeder.awards.first %}{% include sWedge.html color = feeder.awards.second %}{% include sWedge.html color = feeder.awards.third %})
+                    </p>
+                {% else %}
+                    <p>Nothing feeds {{thisPage.name}} ({{thisPage.style}})</p>
+                {% endif %}
+                
+                {% if champAwards.name %}
+                    {% assign awardsURL = "/" | append: champAwards.nick | append: "/" %}
+                    <p>{{thisPage.name}} ({{thisPage.style}}) gives <a href="{{awardsURL}}"> {{thisPage.awards.name}} ({{thisPage.awards.style}})</a> (order: {% include sWedge.html color = thisPage.awards.first %}{% include sWedge.html color = thisPage.awards.second %}{% include sWedge.html color = thisPage.awards.third %})</p>
+                {% else %}
+                    <p>{{thisPage.name}} ({{thisPage.style}}) is not a feeder</p>
+                {% endif %}
+                
+                
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2" style="background-color: white">
+                <!-- content found in (character.md) -->
+                {{content}}
             </div>
         </div>
     </div>
